@@ -1,6 +1,9 @@
-import { writeFileSync } from 'fs';
+import { writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { CrawlerCallback } from 'crawler';
+import config from 'config';
+
+const outputDir: string = config.get('outputDir');
 
 const callback: CrawlerCallback = (error, res, done) => {
   if (error) {
@@ -26,7 +29,11 @@ const callback: CrawlerCallback = (error, res, done) => {
     <p>${text}</p>\n
     </div>`;
 
-  writeFileSync(join(__dirname, '/../../out', `/${title}.xhtml`), text);
+  if (!existsSync(outputDir)) {
+    mkdirSync(outputDir);
+  }
+
+  writeFileSync(join(outputDir, `${title}.xhtml`), text);
   return done();
 };
 

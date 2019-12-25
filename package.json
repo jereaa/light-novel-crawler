@@ -2,7 +2,6 @@
   "name": "light-novel-crawler",
   "version": "1.0.0",
   "description": "Tool for crawling HTML pages with light novel content and transforming into EPUB",
-  "type": "module",
   "main": "index.js",
   "scripts": {
     "start": "node dist/index.js",
@@ -12,10 +11,12 @@
   "author": "jereaa",
   "license": "ISC",
   "dependencies": {
+    "config": "^3.2.4",
     "crawler": "^1.2.1"
   },
   "devDependencies": {
     "@types/cheerio": "^0.22.15",
+    "@types/config": "0.0.36",
     "@types/node": "^12.12.22",
     "@types/request": "^2.48.4",
     "@typescript-eslint/eslint-plugin": "^2.13.0",
