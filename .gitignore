@@ -3,3 +3,6 @@
 
 # Modules
 node_modules
+
+# Dist
+dist
