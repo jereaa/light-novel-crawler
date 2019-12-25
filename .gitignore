@@ -4,5 +4,6 @@
 # Modules
 node_modules
 
-# Dist
+# Generated files
 dist
+out

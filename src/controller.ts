@@ -20,10 +20,14 @@ const callback: CrawlerCallback = (error, res, done) => {
     return process.exit(1);
   }
 
-  text = text.replace(/&#x3000;/g, '<p>');
-  text = text.replace(/<br>/g, '</p>');
+  text = text.replace(/&#x3000;/g, '');
+  text = text.replace(/<br>/g, '</p>\n<p>');
+  text = `<div class="chapter-part">\n
+    <h2>${$('.entry-content > p').eq(1).text()}</h2>\n
+    <p>${text}</p>\n
+    </div>`;
 
-  writeFileSync(join(__dirname, '/../../', '/output.xhtml'), text);
+  writeFileSync(join(__dirname, '/../../out', '/output.xhtml'), text);
   return done();
 };
 
