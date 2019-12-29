@@ -1,17 +1,9 @@
 import config from 'config';
-import Crawler from 'crawler';
 
-import controller from './controller';
+import { IEpubConfig } from './epub/models';
+import EpubWriter from './epub';
 
-const urls: string[] = config.get('urls');
+const epubConfig: IEpubConfig = config.get('epub');
 
-if (!urls) {
-  console.error('Expected a parameter with an URL to crawl!');
-  process.exit(1);
-}
-
-const crawler = new Crawler({
-  callback: controller,
-});
-
-crawler.queue(urls);
+const ew = new EpubWriter(epubConfig);
+ew.write();
