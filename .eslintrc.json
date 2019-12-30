@@ -29,6 +29,7 @@
         ],
         "eol-last": "error",
         "no-param-reassign": ["error", { "props": false }],
-        "lines-between-class-members": ["error", "always", { "exceptAfterSingleLine": true }]
+        "lines-between-class-members": ["error", "always", { "exceptAfterSingleLine": true }],
+        "arrow-parens": ["error", "as-needed", { "requireForBlockBody": true }]
     }
 }

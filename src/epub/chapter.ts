@@ -30,6 +30,18 @@ export default (props: IChapterInfo, title: string, done: () => void): void => {
   streamWriter.write('</head>\n');
 
   streamWriter.write('<body>\n');
+  streamWriter.write(`<section epub:type="bodymatter chapter" class="chapter" id="${chapterId}">\n`);
+
+  let chapterName: string | undefined;
+  if (props.specialChapter) {
+    chapterName = props.specialChapter.replace(/^\w/, c => c.toUpperCase());
+  } else if (props.number) {
+    chapterName = `Chapter ${props.number}`;
+  }
+
+  if (chapterName) {
+    streamWriter.write(`<h1 class="chapter__title">${chapterName}</h1>\n`);
+  }
 
   if (props.content) {
     streamWriter.write(props.content);
@@ -42,6 +54,7 @@ export default (props: IChapterInfo, title: string, done: () => void): void => {
       streamWriter.write('</div>\n');
     });
   }
+  streamWriter.write('</section>\n');
   streamWriter.write('</body>\n');
   streamWriter.end('</html>\n', done);
 };
