@@ -19,3 +19,10 @@ export interface IChapterInfo {
   parts?: string[];
   content?: string;
 }
+
+export interface ITLNote {
+  readonly id: string;
+  readonly href: string;
+  readonly text: string;
+  readonly chapter: IChapterInfo;
+}

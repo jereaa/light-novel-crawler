@@ -1,7 +1,12 @@
 import Crawler from 'crawler';
 
-import { IEpubConfig, IChapterConfig, IChapterInfo } from './models';
-import writeChapter from './chapter';
+import writeChapter, { writeTlNotes } from './chapter';
+import {
+  IEpubConfig,
+  IChapterConfig,
+  IChapterInfo,
+  ITLNote,
+} from './models';
 
 export default class EpubWriter {
   title: string;
@@ -9,6 +14,7 @@ export default class EpubWriter {
   private chapterConfigs: IChapterConfig[];
   private chapters: IChapterInfo[];
   private currentChapterIndex = 0;
+  private tlNotes: ITLNote[] = [];
 
   private crawler = new Crawler({});
 
@@ -27,6 +33,8 @@ export default class EpubWriter {
         this.currentChapterIndex += 1;
         if (this.currentChapterIndex < this.chapterConfigs.length) {
           this.write();
+        } else {
+          writeTlNotes(this.tlNotes, this.title, () => {});
         }
       });
     });
@@ -73,11 +81,34 @@ export default class EpubWriter {
             return;
           }
 
+          // Remove indent and replace <br> tag por <p>
           text = text.replace(/&#x3000;/g, '');
           text = text.replace(/<br>/g, '</p>\n<p>');
           text = '<div class="chapter-part__content">\n'
             + `<p>${text}</p>\n`
             + '</div>\n';
+
+          // Search for TL Notes
+          const chapterTlNotes = $('a[name^="_ftnref"]');
+          if (chapterTlNotes.length > 0) {
+            const epubTlNotes = this.tlNotes;
+            chapterTlNotes.each((index, element) => {
+              const noteNameInHTML = $(element).attr('href')?.substr(1);
+              const noteText = $(`a[name="${noteNameInHTML}"]`).next().text();
+              const noteId = `tl-note_${(epubTlNotes.length + 1).toString().padStart(3, '0')}`;
+              epubTlNotes.push({
+                id: noteId,
+                href: `./tl-notes.xhtml#${noteId}`,
+                text: noteText,
+                chapter: chapterInfo,
+              });
+
+              if (text) {
+                text = text.replace(`href="${$(element).attr('href')}"`, `href="./tl-notes.xhtml#${noteId}"`);
+                text = text.replace(`name="${$(element).attr('name')}"`, `name="tl-note_${(epubTlNotes.length).toString().padStart(3, '0')}"`);
+              }
+            });
+          }
 
           if (chapterInfo.parts) {
             chapterInfo.parts[urlIndex] = text;
