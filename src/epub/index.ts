@@ -1,10 +1,11 @@
 import Crawler from 'crawler';
 
-import writeChapter, { writeTlNotes } from './chapter';
+import EpubChapter from './text/chapter';
+import TLNotes from './text/tl-notes';
 import {
   IEpubConfig,
   IChapterConfig,
-  IChapterInfo,
+  IChapterOptions,
   ITLNote,
 } from './models';
 
@@ -12,9 +13,9 @@ export default class EpubWriter {
   title: string;
   author: string;
   private chapterConfigs: IChapterConfig[];
-  private chapters: IChapterInfo[];
+  private chapters: EpubChapter[];
   private currentChapterIndex = 0;
-  private tlNotes: ITLNote[] = [];
+  private tlNotes = new TLNotes();
 
   private crawler = new Crawler({});
 
@@ -22,19 +23,19 @@ export default class EpubWriter {
     this.title = props.title;
     this.author = props.author;
     this.chapterConfigs = JSON.parse(JSON.stringify(props.chapters));
-    this.chapters = Array<IChapterInfo>(this.chapterConfigs.length);
+    this.chapters = Array(this.chapterConfigs.length);
 
     this.setup();
   }
 
   private setup(): void {
     this.crawler.on('drain', () => {
-      writeChapter(this.chapters[this.currentChapterIndex], this.title, () => {
+      this.chapters[this.currentChapterIndex].write(() => {
         this.currentChapterIndex += 1;
         if (this.currentChapterIndex < this.chapterConfigs.length) {
           this.write();
         } else {
-          writeTlNotes(this.tlNotes, this.title, () => {});
+          this.tlNotes.write();
         }
       });
     });
@@ -42,25 +43,15 @@ export default class EpubWriter {
 
   write(): void {
     const chapterConfig = this.chapterConfigs[this.currentChapterIndex];
-    const chapterInfo: IChapterInfo = {
+    const chapterInfo: IChapterOptions = {
+      headers: chapterConfig.headers.slice(0),
+      parts: Array<string>(chapterConfig.urls.length),
+      ...chapterConfig.id && { id: chapterConfig.id },
       ...chapterConfig.title && { title: chapterConfig.title },
-      ...chapterConfig.specialChapter && { specialChapter: chapterConfig.specialChapter },
-      ...chapterConfig.number && { number: chapterConfig.number },
-      ...chapterConfig.parts && { parts: Array(chapterConfig.parts.length) },
     };
-    this.chapters[this.currentChapterIndex] = chapterInfo;
+    this.chapters[this.currentChapterIndex] = new EpubChapter(chapterInfo);
 
-    let fetchURLs: string[];
-    if (chapterConfig.parts) {
-      fetchURLs = chapterConfig.parts;
-    } else if (chapterConfig.url) {
-      fetchURLs = [chapterConfig.url];
-    } else {
-      console.error(`Expected chapter ${this.currentChapterIndex} to have either an URL or parts properties.`);
-      return;
-    }
-
-    fetchURLs.forEach((url, urlIndex) => {
+    chapterConfig.urls.forEach((url, urlIndex) => {
       this.crawler.queue({
         uri: url,
         callback: (error, res, done) => {
@@ -91,31 +82,23 @@ export default class EpubWriter {
           // Search for TL Notes
           const chapterTlNotes = $('a[name^="_ftnref"]');
           if (chapterTlNotes.length > 0) {
-            const epubTlNotes = this.tlNotes;
             chapterTlNotes.each((index, element) => {
               const noteNameInHTML = $(element).attr('href')?.substr(1);
               const noteText = $(`a[name="${noteNameInHTML}"]`).next().text();
-              const noteId = `tl-note_${(epubTlNotes.length + 1).toString().padStart(3, '0')}`;
-              epubTlNotes.push({
-                id: noteId,
-                href: `./tl-notes.xhtml#${noteId}`,
+              const note: ITLNote = {
                 text: noteText,
                 chapter: chapterInfo,
-              });
+              };
+              const noteId = this.tlNotes.add(note);
 
               if (text) {
                 text = text.replace(`href="${$(element).attr('href')}"`, `href="./tl-notes.xhtml#${noteId}"`);
-                text = text.replace(`name="${$(element).attr('name')}"`, `name="tl-note_${(epubTlNotes.length).toString().padStart(3, '0')}"`);
+                text = text.replace(`name="${$(element).attr('name')}"`, `id="ref-${noteId}"`);
               }
             });
           }
 
-          if (chapterInfo.parts) {
-            chapterInfo.parts[urlIndex] = text;
-          } else {
-            chapterInfo.content = text;
-          }
-
+          chapterInfo.parts[urlIndex] = text;
           done();
         },
       });

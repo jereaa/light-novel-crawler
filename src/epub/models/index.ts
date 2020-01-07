@@ -1,9 +1,9 @@
 export interface IChapterConfig {
+  headers: string[];
+  urls: string[];
+  id?: string;
   title?: string;
-  specialChapter?: 'prologue' | 'epilogue' | 'afterword';
-  number?: number;
-  parts?: string[];
-  url?: string;
+  titleIsHeader?: boolean;
 }
 
 export interface IEpubConfig {
@@ -12,17 +12,24 @@ export interface IEpubConfig {
   chapters: IChapterConfig[];
 }
 
-export interface IChapterInfo {
-  number?: number;
-  title?: string;
-  specialChapter?: 'prologue' | 'epilogue' | 'afterword';
-  parts?: string[];
-  content?: string;
+export interface ITLNote {
+  id?: string;
+  href?: string;
+  readonly text: string;
+  readonly chapter: IChapterOptions;
 }
 
-export interface ITLNote {
-  readonly id: string;
-  readonly href: string;
-  readonly text: string;
-  readonly chapter: IChapterInfo;
+export interface IEpubTextOptions {
+  readonly id?: string;
+  readonly title?: string;
+  readonly includeStyles?: boolean;
+}
+
+export interface ITLNotesOptions extends IEpubTextOptions {
+  readonly tlNotes?: ITLNote[];
+}
+
+export interface IChapterOptions extends IEpubTextOptions {
+  readonly headers: string[];
+  parts: string[];
 }

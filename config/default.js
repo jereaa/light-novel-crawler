@@ -8,9 +8,10 @@ module.exports = {
     author: 'Yukiya Murasaki',
     chapters: [
       {
-        specialChapter: 'prologue',
-        title: 'Prologue',
-        parts: [
+        id: 'prologue',
+        headers: ['Prologue'],
+        titleIsHeader: true,
+        urls: [
           'https://isekaicyborg.wordpress.com/isekai-maou-to-shoukan-shoujo-dorei-majutsu/vol12prologue-part-1/',
           'https://isekaicyborg.wordpress.com/isekai-maou-to-shoukan-shoujo-dorei-majutsu/vol12prologue-part-2/',
           'https://isekaicyborg.wordpress.com/isekai-maou-to-shoukan-shoujo-dorei-majutsu/vol12prologue-part-3/',
