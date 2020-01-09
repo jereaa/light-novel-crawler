@@ -66,7 +66,25 @@ export default class EpubWriter {
             return;
           }
 
-          let text = $('.entry-content > p').eq(2).html();
+          let paragraphs = $('.entry-content > p');
+          paragraphs = paragraphs.map((index, element) => {
+            // We are interested in all <p> tags except the first 2 and the last one
+            if (index >= 2 && index < paragraphs.length - 1) {
+              if (index >= 3) {
+                $(element).addClass('margin-top');
+              }
+
+              return element;
+            }
+
+            return null;
+          });
+
+          let text = '';
+          paragraphs.each((index, element) => {
+            text += `${$.html(element)}\n`;
+          });
+
           if (!text) {
             console.error('Couldn\'t retrieve any HTML from selection.');
             return;
@@ -76,7 +94,7 @@ export default class EpubWriter {
           text = text.replace(/&#x3000;/g, '');
           text = text.replace(/<br>/g, '</p>\n<p>');
           text = '<div class="chapter-part__content">\n'
-            + `<p>${text}</p>\n`
+            + `${text}\n`
             + '</div>\n';
 
           // Search for TL Notes
