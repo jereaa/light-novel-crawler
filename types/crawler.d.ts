@@ -26,7 +26,7 @@ declare module 'crawler' {
     proxy?: any;
     proxies?: any[];
     limiter?: string;
-    encoding?: string;
+    encoding?: string | null;
     priority?: number;
     jQuery?: boolean | "whacko" | "cheerio" | {
         name: "cheerio";
