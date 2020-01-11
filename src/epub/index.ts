@@ -1,7 +1,4 @@
 import Crawler from 'crawler';
-import config from 'config';
-import { createWriteStream } from 'fs';
-import { join } from 'path';
 
 import EpubChapter from './text/chapter';
 import TLNotes from './text/tl-notes';
@@ -11,9 +8,7 @@ import {
   IChapterOptions,
   ITLNote,
 } from './models';
-
-const outputDir: string = config.get('outputDir');
-const imagesDir: string = join(outputDir, 'Images');
+import ImageManager from './services/image-manager';
 
 export default class EpubWriter {
   title: string;
@@ -22,7 +17,7 @@ export default class EpubWriter {
   private chapters: EpubChapter[];
   private currentChapterIndex = 0;
   private tlNotes = new TLNotes();
-  private imagesUrls: string[] = [];
+  private imageManager = new ImageManager();
 
   private crawler = new Crawler({});
 
@@ -42,27 +37,9 @@ export default class EpubWriter {
         if (this.currentChapterIndex < this.chapterConfigs.length) {
           this.write();
         } else {
-          this.downloadImages();
+          this.imageManager.downloadAll();
           this.tlNotes.write();
         }
-      });
-    });
-  }
-
-  private downloadImages(): void {
-    this.imagesUrls.forEach((url, index) => {
-      this.crawler.queue({
-        uri: url,
-        encoding: null,
-        jQuery: false,
-        callback: (error, res, done) => {
-          if (error) {
-            console.error(`Error downloading image from ${url}. Error: ${error.message}`);
-            return;
-          }
-
-          createWriteStream(join(imagesDir, `img${index.toString().padStart(3, '0')}.jpg`)).write(res.body, done);
-        },
       });
     });
   }
@@ -106,10 +83,10 @@ export default class EpubWriter {
             return null;
           });
 
-          const { imagesUrls } = this;
+          const { imageManager } = this;
           const images = paragraphs.find('img');
           images.each((index, imageElement) => {
-            imagesUrls.push(imageElement.attribs['data-orig-file']);
+            imageManager.add(imageElement.attribs['data-orig-file']);
           });
 
           let text = '';
