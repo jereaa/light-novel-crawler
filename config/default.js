@@ -24,6 +24,9 @@ module.exports = {
         urls: [
           'https://isekaicyborg.wordpress.com/isekai-maou-to-shoukan-shoujo-dorei-majutsu/chapter-1-trying-out-practicing-part-1/',
           'https://isekaicyborg.wordpress.com/isekai-maou-to-shoukan-shoujo-dorei-majutsu/chapter-1-trying-out-practicing-part-2/',
+          'https://isekaicyborg.wordpress.com/isekai-maou-to-shoukan-shoujo-dorei-majutsu/chapter-1-trying-out-practicing-part-3/',
+          'https://isekaicyborg.wordpress.com/isekai-maou-to-shoukan-shoujo-dorei-majutsu/chapter-1-trying-out-practicing-part-4/',
+          'https://isekaicyborg.wordpress.com/isekai-maou-to-shoukan-shoujo-dorei-majutsu/chapter-1-trying-out-practicing-part-5/',
         ],
       },
     ],

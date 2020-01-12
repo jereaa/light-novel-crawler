@@ -16,11 +16,12 @@ export default class EpubImage {
     this.originalUrl = originalUrl;
   }
 
+  get filename(): string {
+    return this.id + extname(this.originalUrl);
+  }
+
   toHtml(): string {
-    return '<svg xmlns="http://www.w3.org/2000/svg">'.concat(
-      `<image xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="../Images/${this.id}.${extname(this.originalUrl)}">`,
-      '</image></svg>',
-    );
+    return `<img src="../Images/${this.filename}" />`;
   }
 
   download(): void {
@@ -38,7 +39,7 @@ export default class EpubImage {
           return;
         }
 
-        fs.createWriteStream(join(imagesDir, `${this.id}.${extname(this.originalUrl)}`)).write(res.body, done);
+        fs.createWriteStream(join(imagesDir, `${this.filename}`)).write(res.body, done);
       },
     });
   }

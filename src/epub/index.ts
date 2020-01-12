@@ -57,6 +57,12 @@ export default class EpubWriter {
     chapterConfig.urls.forEach((url, urlIndex) => {
       this.crawler.queue({
         uri: url,
+        jQuery: {
+          name: 'cheerio',
+          options: {
+            xmlMode: true,
+          },
+        },
         callback: (error, res, done) => {
           if (error) {
             console.error(`Error fetching URL index ${urlIndex} of chapter ${this.currentChapterIndex}. Error: ${error.message}.`);
@@ -69,10 +75,18 @@ export default class EpubWriter {
             return;
           }
 
+          const { imageManager } = this;
           let paragraphs = $('.entry-content > p');
           paragraphs = paragraphs.map((index, element) => {
             // We are interested in all <p> tags except the first 2 and the last one
             if (index >= 2 && index < paragraphs.length - 1) {
+
+              // If paragraph contains an image, we use our own format
+              const img = $(element).find('img');
+              if (img.length > 0) {
+                const epubImage = imageManager.add(img[0].attribs['data-orig-file']);
+                return $(`<div class="page-image">${epubImage.toHtml()}</div>`);
+              }
               if (index >= 3) {
                 $(element).addClass('margin-top');
               }
@@ -81,12 +95,6 @@ export default class EpubWriter {
             }
 
             return null;
-          });
-
-          const { imageManager } = this;
-          const images = paragraphs.find('img');
-          images.each((index, imageElement) => {
-            imageManager.add(imageElement.attribs['data-orig-file']);
           });
 
           let text = '';
@@ -101,7 +109,7 @@ export default class EpubWriter {
 
           // Remove indent and replace <br> tag por <p>
           text = text.replace(/&#x3000;/g, '');
-          text = text.replace(/<br>/g, '</p>\n<p>');
+          text = text.replace(/<br\/>/g, '</p>\n<p>');
           text = '<div class="chapter-part__content">\n'
             + `${text}\n`
             + '</div>\n';
