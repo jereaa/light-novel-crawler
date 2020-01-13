@@ -86,6 +86,13 @@ export default class EpubWriter {
                 const epubImage = imageManager.add(img[0].attribs['data-orig-file']);
                 return $(`<div class="page-image">${epubImage.toHtml()}</div>`);
               }
+
+              // We are not intereste in translator notes. Those go elsewhere.
+              const tlNotes = $(element).find('a[href^="#_ftnref"]');
+              if (tlNotes.length > 0) {
+                return null;
+              }
+
               if (index >= 3) {
                 $(element).addClass('margin-top');
               }
