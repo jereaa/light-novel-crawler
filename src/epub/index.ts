@@ -49,6 +49,7 @@ export default class EpubWriter {
     const chapterInfo: IChapterOptions = {
       headers: chapterConfig.headers.slice(0),
       parts: Array<string>(chapterConfig.urls.length),
+      title: this.title,
       ...chapterConfig.id && { id: chapterConfig.id },
       ...chapterConfig.title && { title: chapterConfig.title },
     };

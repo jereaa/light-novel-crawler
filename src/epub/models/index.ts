@@ -3,7 +3,6 @@ export interface IChapterConfig {
   urls: string[];
   id?: string;
   title?: string;
-  titleIsHeader?: boolean;
 }
 
 export interface IEpubConfig {
