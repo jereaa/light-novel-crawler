@@ -80,7 +80,6 @@ export default class EpubWriter {
           paragraphs = paragraphs.map((index, element) => {
             // We are interested in all <p> tags except the first 2 and the last one
             if (index >= 2 && index < paragraphs.length - 1) {
-
               // If paragraph contains an image, we use our own format
               const img = $(element).find('img');
               if (img.length > 0) {
